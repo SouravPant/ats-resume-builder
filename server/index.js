@@ -161,7 +161,11 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok", hasApiKey: !!process.env.GROQ_API_KEY, model: MODEL });
 });
 
-app.listen(PORT, () => {
-  console.log(`✅ ATS Resume Builder API running on http://localhost:${PORT}`);
-  console.log(`   Model: ${MODEL} via Groq`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(PORT, () => {
+    console.log(`✅ ATS Resume Builder API running on http://localhost:${PORT}`);
+    console.log(`   Model: ${MODEL} via Groq`);
+  });
+}
+
+module.exports = app;
