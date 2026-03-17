@@ -7,7 +7,8 @@ import { demoJobDescription, demoResumeText } from "./utils/demoData";
 import { exportResumePDF } from "./utils/pdfExport";
 
 // For production (e.g. Vercel), default to relative paths so it correctly calls under the same domain
-const API = import.meta.env.VITE_API_URL || (import.meta.env.MODE === "development" ? "http://localhost:3001" : "");
+// This prevents accidental Mixed Content errors if VITE_API_URL is set incorrectly in Vercel.
+const API = import.meta.env.MODE === "production" ? "" : (import.meta.env.VITE_API_URL || "http://localhost:3001");
 
 export default function App() {
   const [jobDescription, setJobDescription] = useState(demoJobDescription);

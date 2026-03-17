@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import axios from "axios";
 
 // For production (e.g. Vercel), default to relative paths so it correctly calls under the same domain
-const API = import.meta.env.VITE_API_URL || (import.meta.env.MODE === "development" ? "http://localhost:3001" : "");
+// This prevents accidental Mixed Content errors if VITE_API_URL is set incorrectly in Vercel.
+const API = import.meta.env.MODE === "production" ? "" : (import.meta.env.VITE_API_URL || "http://localhost:3001");
 
 export default function InputPanel({
   jobDescription,
