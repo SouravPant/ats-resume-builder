@@ -102,8 +102,10 @@ ${resumeText}`;
     const parsed = JSON.parse(text);
     return res.json(parsed);
   } catch (err) {
-    console.error("Analyze error:", err.message || err);
-    return res.status(500).json({ error: "Failed to analyze resume. " + (err.message || err) });
+    console.error("----- FULL ANALYZE ERROR TRACE -----");
+    console.error(err);
+    console.error("--------------------------------------");
+    return res.status(500).json({ error: "Failed to analyze resume. " + (err.message || err.toString()) });
   }
 });
 

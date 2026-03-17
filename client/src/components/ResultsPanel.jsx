@@ -214,7 +214,7 @@ export default function ResultsPanel({
       )}
 
       {/* Missing Keywords */}
-      {results.missingKeywords?.length > 0 && (
+      {results.missingKeywords && (
         <div className="card animate-in" style={{ animationDelay: "0.1s" }}>
           <h2
             style={{
@@ -242,32 +242,40 @@ export default function ResultsPanel({
               ⚠️
             </span>
             Missing Keywords
-            <span
-              style={{
-                marginLeft: "auto",
-                fontSize: "0.7rem",
-                background: "rgba(239,68,68,0.15)",
-                color: "var(--score-red)",
-                padding: "3px 8px",
-                borderRadius: "6px",
-                fontWeight: 600,
-              }}
-            >
-              {results.missingKeywords.length} missing
-            </span>
+            {Array.isArray(results.missingKeywords) && (
+              <span
+                style={{
+                  marginLeft: "auto",
+                  fontSize: "0.7rem",
+                  background: "rgba(239,68,68,0.15)",
+                  color: "var(--score-red)",
+                  padding: "3px 8px",
+                  borderRadius: "6px",
+                  fontWeight: 600,
+                }}
+              >
+                {results.missingKeywords.length} missing
+              </span>
+            )}
           </h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-            {results.missingKeywords.map((kw, i) => (
-              <span key={i} className="badge-missing">
-                ✕ {kw}
+            {Array.isArray(results.missingKeywords) ? (
+              results.missingKeywords.map((kw, i) => (
+                <span key={i} className="badge-missing">
+                  ✕ {kw}
+                </span>
+              ))
+            ) : typeof results.missingKeywords === "string" ? (
+              <span className="badge-missing" style={{ whiteSpace: "pre-wrap" }}>
+                ✕ {results.missingKeywords}
               </span>
-            ))}
+            ) : null}
           </div>
         </div>
       )}
 
       {/* Present Keywords */}
-      {results.presentKeywords?.length > 0 && (
+      {results.presentKeywords && (
         <div className="card animate-in" style={{ animationDelay: "0.15s" }}>
           <h2
             style={{
@@ -297,17 +305,23 @@ export default function ResultsPanel({
             Matched Keywords
           </h2>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-            {results.presentKeywords.map((kw, i) => (
-              <span key={i} className="badge-present">
-                ✓ {kw}
+            {Array.isArray(results.presentKeywords) ? (
+              results.presentKeywords.map((kw, i) => (
+                <span key={i} className="badge-present">
+                  ✓ {kw}
+                </span>
+              ))
+            ) : typeof results.presentKeywords === "string" ? (
+              <span className="badge-present" style={{ whiteSpace: "pre-wrap" }}>
+                ✓ {results.presentKeywords}
               </span>
-            ))}
+            ) : null}
           </div>
         </div>
       )}
 
       {/* Top 5 Suggestions */}
-      {results.topSuggestions?.length > 0 && (
+      {results.topSuggestions && (
         <div className="card animate-in" style={{ animationDelay: "0.18s", border: "1px solid rgba(245, 158, 11, 0.3)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
             <h2
@@ -340,7 +354,8 @@ export default function ResultsPanel({
               className="btn-secondary"
               style={{ fontSize: "0.75rem", padding: "6px 12px", display: "flex", alignItems: "center", gap: "6px" }}
               onClick={() => {
-                const text = "Top 5 Suggestions to Improve Your Resume:\n\n" + results.topSuggestions.map((s, i) => `${i + 1}. ${s}`).join("\n");
+                const arr = Array.isArray(results.topSuggestions) ? results.topSuggestions : [results.topSuggestions];
+                const text = "Top 5 Suggestions to Improve Your Resume:\n\n" + arr.map((s, i) => `${i + 1}. ${s}`).join("\n");
                 navigator.clipboard.writeText(text);
               }}
             >
@@ -348,11 +363,17 @@ export default function ResultsPanel({
             </button>
           </div>
           <ul style={{ paddingLeft: "20px", margin: 0, display: "flex", flexDirection: "column", gap: "10px" }}>
-            {results.topSuggestions.map((suggestion, i) => (
-              <li key={i} style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-                {suggestion}
+            {Array.isArray(results.topSuggestions) ? (
+              results.topSuggestions.map((suggestion, i) => (
+                <li key={i} style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+                  {suggestion}
+                </li>
+              ))
+            ) : typeof results.topSuggestions === "string" ? (
+              <li style={{ fontSize: "0.85rem", color: "var(--text-secondary)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>
+                {results.topSuggestions}
               </li>
-            ))}
+            ) : null}
           </ul>
         </div>
       )}

@@ -12,6 +12,7 @@ export default function InputPanel({
   setResumeText,
   onAnalyze,
   loading,
+  onError,
 }) {
   const fileInputRef = useRef(null);
   const [uploading, setUploading] = useState(false);
@@ -23,6 +24,7 @@ export default function InputPanel({
 
     try {
       setUploading(true);
+      if (onError) onError(null); // Clear previous errors
       
       // Read the file as a base64 string to bypass Vercel's Serverless Function
       // multipart parser which corrupts binary uploads
@@ -45,7 +47,9 @@ export default function InputPanel({
       setResumeText(res.data.text);
       setUploadedFile({ name: file.name, pages: res.data.pages });
     } catch (err) {
-      alert("Failed to parse PDF: " + (err.response?.data?.error || err.message));
+      const errorMsg = "Failed to parse PDF: " + (err.response?.data?.error || err.message);
+      if (onError) onError(errorMsg);
+      else alert(errorMsg);
     } finally {
       setUploading(false);
       // Reset input so same file can be re-uploaded

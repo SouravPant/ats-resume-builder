@@ -1,13 +1,12 @@
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
 
-export async function exportResumePDF(resumeText, title = "ATS_Analysis_Report") {
+export async function exportResumePDF(title = "ATS_Analysis_Report") {
   // We want to capture the ResultsPanel. We'll find it by ID.
   const element = document.getElementById("results-panel-export");
   
   if (!element) {
-    alert("Please wait for analysis to complete before exporting the report.");
-    return;
+    throw new Error("Please wait for analysis to complete before exporting the report.");
   }
 
   try {
@@ -56,6 +55,6 @@ export async function exportResumePDF(resumeText, title = "ATS_Analysis_Report")
     pdf.save(`${title.replace(/\s+/g, "_")}.pdf`);
   } catch (err) {
     console.error("Failed to generate PDF:", err);
-    alert("Failed to generate PDF. Check console for details.");
+    throw new Error("Failed to generate PDF. Your browser may not support this feature.");
   }
 }

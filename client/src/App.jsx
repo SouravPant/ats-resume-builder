@@ -3,6 +3,7 @@ import axios from "axios";
 import InputPanel from "./components/InputPanel";
 import ResultsPanel from "./components/ResultsPanel";
 import ResumeManager from "./components/ResumeManager";
+import ErrorBoundary from "./components/ErrorBoundary";
 import { demoJobDescription, demoResumeText } from "./utils/demoData";
 import { exportResumePDF } from "./utils/pdfExport";
 
@@ -15,12 +16,15 @@ export default function App() {
   const [resumeText, setResumeText] = useState(demoResumeText);
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [error, setError] = useState(null);
 
   const handleAnalyze = async () => {
     try {
       setLoading(true);
       setError(null);
+      // Clear previous results to trigger loading state visually
+      setResults(null);
       const res = await axios.post(`${API}/api/analyze`, {
         jobDescription,
         resumeText,
@@ -46,8 +50,16 @@ export default function App() {
     setResults(null);
   };
 
-  const handleExportPDF = () => {
-    exportResumePDF(resumeText, "ATS_Resume");
+  const handleExportPDF = async () => {
+    try {
+      setExporting(true);
+      setError(null);
+      await exportResumePDF("ATS_Resume");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -120,9 +132,17 @@ export default function App() {
           <button
             className="btn-secondary"
             onClick={handleExportPDF}
+            disabled={exporting}
             style={{ fontSize: "0.8rem", display: "flex", alignItems: "center", gap: "6px" }}
           >
-            📄 Export PDF
+            {exporting ? (
+              <>
+                <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
+                Exporting...
+              </>
+            ) : (
+              <>📄 Export PDF</>
+            )}
           </button>
         </div>
       </header>
@@ -189,18 +209,33 @@ export default function App() {
             setResumeText={setResumeText}
             onAnalyze={handleAnalyze}
             loading={loading}
+            onError={setError}
           />
         </div>
 
         {/* Right — Results */}
         <div>
-          <ResultsPanel
-            results={results}
-            jobDescription={jobDescription}
-            resumeText={resumeText}
-            onApplyRewrite={handleApplyRewrite}
-            onReanalyze={handleAnalyze}
-          />
+          <ErrorBoundary>
+            {loading && !results ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100%", minHeight: "400px", color: "var(--text-muted)", gap: "16px" }}>
+                <span className="spinner" style={{ width: 32, height: 32, borderWidth: 3, borderTopColor: "var(--accent-blue)" }}></span>
+                <p style={{ fontSize: "1rem", fontWeight: 600, color: "var(--text-secondary)" }}>
+                  Analyzing Resume...
+                </p>
+                <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                  This format usually takes 5-10 seconds.
+                </p>
+              </div>
+            ) : (
+              <ResultsPanel
+                results={results}
+                jobDescription={jobDescription}
+                resumeText={resumeText}
+                onApplyRewrite={handleApplyRewrite}
+                onReanalyze={handleAnalyze}
+              />
+            )}
+          </ErrorBoundary>
         </div>
       </main>
 
