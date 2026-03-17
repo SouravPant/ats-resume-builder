@@ -93,7 +93,12 @@ ${jobDescription}
 RESUME:
 ${resumeText}`;
 
-    const text = await chatCompletion(prompt);
+    let text = await chatCompletion(prompt);
+    
+    // Sometimes the LLM wraps the JSON in markdown blocks (e.g. ```json ... ```) 
+    // This removes the backticks and the 'json' keyword before parsing.
+    text = text.replace(/```json\n?/g, "").replace(/```/g, "").trim();
+
     const parsed = JSON.parse(text);
     return res.json(parsed);
   } catch (err) {

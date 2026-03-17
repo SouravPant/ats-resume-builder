@@ -119,7 +119,7 @@ export default function ResultsPanel({
         </p>
 
         {/* Score Breakdown */}
-        {results.scoreBreakdown && (
+        {results.scoreBreakdown && Object.keys(results.scoreBreakdown).length > 0 && (
           <div
             style={{
               display: "grid",
