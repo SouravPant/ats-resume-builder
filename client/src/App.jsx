@@ -6,7 +6,8 @@ import ResumeManager from "./components/ResumeManager";
 import { demoJobDescription, demoResumeText } from "./utils/demoData";
 import { exportResumePDF } from "./utils/pdfExport";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:3001";
+// For production (e.g. Vercel), default to relative paths so it correctly calls under the same domain
+const API = import.meta.env.VITE_API_URL || (import.meta.env.MODE === "development" ? "http://localhost:3001" : "");
 
 export default function App() {
   const [jobDescription, setJobDescription] = useState(demoJobDescription);
