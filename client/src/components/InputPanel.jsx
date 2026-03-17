@@ -23,11 +23,23 @@ export default function InputPanel({
 
     try {
       setUploading(true);
-      const formData = new FormData();
-      formData.append("pdf", file);
+      
+      // Read the file as a base64 string to bypass Vercel's Serverless Function
+      // multipart parser which corrupts binary uploads
+      const base64Pdf = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          // Result is a data URL like: data:application/pdf;base64,JVBERi0xLjQK...
+          // We need to strip everything up to the comma to get purely the base64 string
+          const b64 = reader.result.split(',')[1];
+          resolve(b64);
+        };
+        reader.onerror = (error) => reject(error);
+        reader.readAsDataURL(file);
+      });
 
-      const res = await axios.post(`${API}/api/parse-pdf`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const res = await axios.post(`${API}/api/parse-pdf`, { base64Pdf }, {
+        headers: { "Content-Type": "application/json" },
       });
 
       setResumeText(res.data.text);

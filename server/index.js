@@ -148,12 +148,18 @@ SECTION TO REWRITE: ${section}`;
 });
 
 // ---------- POST /api/parse-pdf ----------
-app.post("/api/parse-pdf", upload.single("pdf"), async (req, res) => {
+app.post("/api/parse-pdf", async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No PDF file uploaded." });
+    const { base64Pdf } = req.body;
+    
+    if (!base64Pdf) {
+      return res.status(400).json({ error: "No base64 PDF provided." });
     }
-    const data = await pdfParse(req.file.buffer);
+
+    // Convert the base64 string directly into a Buffer
+    const pdfBuffer = Buffer.from(base64Pdf, 'base64');
+    const data = await pdfParse(pdfBuffer);
+    
     return res.json({ text: data.text, pages: data.numpages });
   } catch (err) {
     console.error("PDF parse error:", err.message || err);
